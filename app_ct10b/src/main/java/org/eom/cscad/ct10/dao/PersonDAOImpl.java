@@ -10,36 +10,37 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Repository;
+//import org.springframework.stereotype.Repository;
 
 import org.eom.cscad.ct10.model.Person;
 
 import java.sql.*;
 import java.lang.reflect.Field;
 
+//@Repository
 @SuppressWarnings("unused")
-@Repository
 public class PersonDAOImpl implements PersonDAO {
 	
 	private static final Logger logger = LoggerFactory.getLogger(PersonDAOImpl.class);
 
-	//private SessionFactory sessionFactory;
-	
+
 	List<Person> personsList;
 	
-	public void setSessionFactory(SessionFactory sf){
-		//this.sessionFactory = sf;
+	private PersonDAOImpl(){
+		listPersons();
 	}
+	
 
 	@Override
 	public void addPerson(Person p) {		
+            String sqlStr = 
+    	    		"INSERT INTO person (name, country)" + " "
+    	    	    		+ "VALUES ('" + p.getName() + "', '" + p.getCountry() + "');";   		
+ 
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
             Connection conn = DriverManager.getConnection(url,"root","12345");
-            Statement stmt = conn.createStatement();
-            String sqlStr = 
-    	    		"INSERT INTO person (name, country)" + " "
-    	    	    		+ "VALUES ('" + p.getName() + "', '" + p.getCountry() + "');";           
+            Statement stmt = conn.createStatement();         
 
             List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());
 
@@ -59,14 +60,15 @@ public class PersonDAOImpl implements PersonDAO {
 
 	@Override
 	public void updatePerson(Person p) {
-        try {
-            String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
-            Statement stmt = conn.createStatement();
             String sqlStr = 
     	    		"UPDATE person" + " "
     	    	    		+ "SET name ='" + p.getName() + "', country = '" + p.getCountry() + "'" + " "
-    	    	    		+ "WHERE id = " + Integer.toString(p.getId()) +  ";";    	    	    		
+    	    	    		+ "WHERE id = " + Integer.toString(p.getId()) +  ";";     
+		
+        try {
+            String url = "jdbc:mysql://localhost:3306/sakila";
+            Connection conn = DriverManager.getConnection(url,"root","12345");
+            Statement stmt = conn.createStatement();	    	    		
            
             List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());
            
