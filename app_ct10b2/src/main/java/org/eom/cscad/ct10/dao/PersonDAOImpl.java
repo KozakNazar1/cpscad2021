@@ -24,12 +24,62 @@ import java.lang.reflect.Field;
 public class PersonDAOImpl implements PersonDAO {
 	
 	private static final Logger logger = LoggerFactory.getLogger(PersonDAOImpl.class);
-
+	private static final String tebleName = Person.class.getSimpleName(); // "mytable1"
 
 	List<Person> personsList;
 	
-	private PersonDAOImpl(){
+	private PersonDAOImpl(){	
+		createIfNotExist();
 		listPersons();
+	}
+	
+	private void createIfNotExist() {
+		Connection conn = null;		
+		try {
+			String url = "jdbc:mysql://localhost:3306/sakila";
+			conn = DriverManager.getConnection(url, "root", "12345");
+			Statement stmt = conn.createStatement();
+			String sqlStr = "CREATE TABLE IF NOT EXISTS " + tebleName + " (" 
+			                + "id INT(11) NOT NULL AUTO_INCREMENT,";
+
+			List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());
+			String fildsStr = "";
+
+			for (Field field : allFields) {
+				String fieldStr = field.toString();
+				String last = fieldStr.substring(fieldStr.lastIndexOf('.') + 1);
+				if (last.equals("id")) {
+					continue;
+				}
+				if (fildsStr.length() != 0) {
+					fildsStr += ",";
+				}
+				if (field.getGenericType().toString().equals(String.class.toString())) { // .getGenericType()
+					fildsStr += " " + last + " VARCHAR(255) DEFAULT NULL";
+				} else { // int for others
+					fildsStr += " " + last + " INT(11)";
+				}
+
+			}
+
+			sqlStr += fildsStr + ", PRIMARY KEY  (id)) ENGINE=INNODB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;";
+
+			System.out.println(sqlStr);
+			stmt.executeUpdate(sqlStr);
+
+			conn.close();
+		} catch (Exception e) {
+			System.err.println("Got an exception! ");
+			System.err.println(e.getMessage());
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
+        }
 	}
 	
 	private Map<String, Object> getFieldRecords(Person p){		
@@ -65,12 +115,13 @@ public class PersonDAOImpl implements PersonDAO {
       	}		
 	
         String sqlStr = 
-	    		"INSERT INTO person (" + fildNamessStr + ")" + " "
+	    		"INSERT INTO " + tebleName + " (" + fildNamessStr + ")" + " "
 	    	    		+ "VALUES (" + fildValuesStr + ");";  		
  
+        Connection conn = null;        
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
+            conn = DriverManager.getConnection(url,"root","12345");
             Statement stmt = conn.createStatement();         
 
             List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());
@@ -80,11 +131,17 @@ public class PersonDAOImpl implements PersonDAO {
     		stmt.executeUpdate(sqlStr);
              
     		logger.info("Person saved successfully, Person Details="+p);    		
-
-            conn.close();
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
         }			
 		
 	}
@@ -104,13 +161,14 @@ public class PersonDAOImpl implements PersonDAO {
       	} 			                 
 	
         String sqlStr = 
-	    		"UPDATE person" + " "
+	    		"UPDATE " + tebleName + " "
 	    	    		+ "SET " + fildsStr + " "
 	    	    		+ "WHERE id = " + Integer.toString(p.getId()) +  ";";      
 		
+        Connection conn = null;        
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
+            conn = DriverManager.getConnection(url,"root","12345");
             Statement stmt = conn.createStatement();	    	    		
            
             List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());
@@ -119,11 +177,17 @@ public class PersonDAOImpl implements PersonDAO {
     		stmt.executeUpdate(sqlStr); 
     		
     		logger.info("Person updated successfully, Person Details="+p);    		
-
-            conn.close();
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
         }							
 	}
 
@@ -132,13 +196,14 @@ public class PersonDAOImpl implements PersonDAO {
 	public List<Person> listPersons() {
 				
 		personsList = new ArrayList<Person>();		
-				
+		Connection conn = null;			
+		
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
+            conn = DriverManager.getConnection(url,"root","12345");
             Statement stmt = conn.createStatement();
             String sqlStr = 
-            		"SELECT * FROM person";              
+            		"SELECT * FROM " + tebleName;              
             ResultSet rs= stmt.executeQuery(sqlStr);
            
             List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());            
@@ -167,12 +232,18 @@ public class PersonDAOImpl implements PersonDAO {
                 logger.info("Person List::"+ p);          	
             	
             }
-            
-            conn.close();
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
-        }		
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
+        }	
 		
 		return personsList;
 	}
@@ -198,12 +269,13 @@ public class PersonDAOImpl implements PersonDAO {
 			return;
 		}
 		
+		Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
+            conn = DriverManager.getConnection(url,"root","12345");
             Statement stmt = conn.createStatement();
 
-    		String sqlStr = "DELETE FROM person" + " "
+    		String sqlStr = "DELETE FROM " + tebleName + " "
     		+ "WHERE id = " + Integer.toString(id) +  ";"; 
            
             List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());
@@ -211,11 +283,17 @@ public class PersonDAOImpl implements PersonDAO {
     		stmt.executeUpdate(sqlStr); 
     		
     		logger.info("Person deleted successfully, person details="+ p);
-
-            conn.close();
-        } catch (Exception e) {
+        } catch (Exception e) {       	
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
         }		
 		
 		
