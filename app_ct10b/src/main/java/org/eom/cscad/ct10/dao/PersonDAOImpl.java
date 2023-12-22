@@ -25,20 +25,51 @@ public class PersonDAOImpl implements PersonDAO {
 
 	List<Person> personsList;
 	
-	private PersonDAOImpl(){
+	private PersonDAOImpl(){	
+		createIfNotExist();
 		listPersons();
 	}
 	
+	private void createIfNotExist() {
+		Connection conn = null;		
+		try {
+			String url = "jdbc:mysql://localhost:3306/sakila";
+			conn = DriverManager.getConnection(url, "root", "12345");
+			Statement stmt = conn.createStatement();
+			String sqlStr = "CREATE TABLE IF NOT EXISTS person (" 
+			                + " id INT(11) NOT NULL AUTO_INCREMENT,"
+			                + " name VARCHAR(255) DEFAULT NULL,"
+			                + " country VARCHAR(255) DEFAULT NULL,"														
+			                + " PRIMARY KEY  (id)) ENGINE=INNODB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;";								
+							
 
+			System.out.println(sqlStr);
+			stmt.executeUpdate(sqlStr);
+
+			conn.close();
+		} catch (Exception e) {
+			System.err.println("Got an exception! ");
+			System.err.println(e.getMessage());
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
+        }
+	}
 	@Override
 	public void addPerson(Person p) {		
             String sqlStr = 
     	    		"INSERT INTO person (name, country)" + " "
     	    	    		+ "VALUES ('" + p.getName() + "', '" + p.getCountry() + "');";   		
  
+        Connection conn = null;        
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
+            conn = DriverManager.getConnection(url,"root","12345");
             Statement stmt = conn.createStatement();         
 
             List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());
@@ -48,11 +79,17 @@ public class PersonDAOImpl implements PersonDAO {
     		stmt.executeUpdate(sqlStr);
              
     		logger.info("Person saved successfully, Person Details="+p);    		
-
-            conn.close();
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
         }			
 		
 	}
@@ -64,9 +101,10 @@ public class PersonDAOImpl implements PersonDAO {
     	    	    		+ "SET name ='" + p.getName() + "', country = '" + p.getCountry() + "'" + " "
     	    	    		+ "WHERE id = " + Integer.toString(p.getId()) +  ";";     
 		
+        Connection conn = null;        
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
+            conn = DriverManager.getConnection(url,"root","12345");
             Statement stmt = conn.createStatement();	    	    		
            
             List<Field> allFields = Arrays.asList(Person.class.getDeclaredFields());
@@ -75,11 +113,17 @@ public class PersonDAOImpl implements PersonDAO {
     		stmt.executeUpdate(sqlStr); 
     		
     		logger.info("Person updated successfully, Person Details="+p);    		
-
-            conn.close();
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
         }							
 	}
 
@@ -88,10 +132,11 @@ public class PersonDAOImpl implements PersonDAO {
 	public List<Person> listPersons() {
 				
 		personsList = new ArrayList<Person>();		
-				
+		Connection conn = null;			
+		
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
+            conn = DriverManager.getConnection(url,"root","12345");
             Statement stmt = conn.createStatement();
             String sqlStr = 
             		"SELECT * FROM person";              
@@ -123,12 +168,18 @@ public class PersonDAOImpl implements PersonDAO {
                 logger.info("Person List::"+ p);          	
             	
             }
-            
-            conn.close();
         } catch (Exception e) {
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
-        }		
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
+        }	
 		
 		return personsList;
 	}
@@ -154,9 +205,10 @@ public class PersonDAOImpl implements PersonDAO {
 			return;
 		}
 		
+		Connection conn = null;
         try {
             String url = "jdbc:mysql://localhost:3306/sakila";
-            Connection conn = DriverManager.getConnection(url,"root","12345");
+            conn = DriverManager.getConnection(url,"root","12345");
             Statement stmt = conn.createStatement();
 
     		String sqlStr = "DELETE FROM person" + " "
@@ -167,11 +219,17 @@ public class PersonDAOImpl implements PersonDAO {
     		stmt.executeUpdate(sqlStr); 
     		
     		logger.info("Person deleted successfully, person details="+ p);
-
-            conn.close();
-        } catch (Exception e) {
+        } catch (Exception e) {       	
             System.err.println("Got an exception! ");
             System.err.println(e.getMessage());
+        }finally{
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}   		
         }		
 		
 		
