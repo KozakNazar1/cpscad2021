@@ -268,7 +268,7 @@ def genPage(pageIndex):
         table.cell(index,2).width = size2
         table.cell(index,3).width = size3    
 
-for index in range(64): # 55, 55, 55
+for index in range(64):
     print(index)
     if index !=0:
         document.add_page_break()
