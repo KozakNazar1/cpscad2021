@@ -191,7 +191,7 @@ task__7_r5  = [
     "специфіка займаної посади(Front-end, Back-end, Full-Stack)."           
     ];
 
-tasks = [task__1_2, task__3, task__4_5, task__6, task__7a, task__7b, task__6];
+tasks = [task__1_2, task__3, task__4_5, task__6, task__7a, task__7b, task__8];
 
 document = Document()
 style = document.styles['Normal']
