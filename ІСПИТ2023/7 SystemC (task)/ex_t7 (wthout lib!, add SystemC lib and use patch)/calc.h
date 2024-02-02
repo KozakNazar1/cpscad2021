@@ -34,7 +34,7 @@ SC_MODULE(Calc) { // 4*A + B - C
         addsub_m2->out2(outResult);
 
         SC_METHOD(updateTemp4A);
-        sensitive << inA;// << inB << inC;
+        sensitive << inA << inB << inC;
     }
 };
 
